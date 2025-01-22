@@ -1,21 +1,21 @@
-import { ImSearch } from "react-icons/im";
 import Card from "../components/Card";
 import { useProducts } from "../context/ProductContext";
 import styles from "./ProductsPage.module.css";
 import Loader from "../components/Loader";
 import { useEffect, useState } from "react";
-import { FaListUl } from "react-icons/fa";
+import SearchBox from "../components/searchBox";
 import {
-  createQueryObject,
   filterProducts,
   getInitialQuery,
   searchProducts,
 } from "../helpers/helper";
 import { useSearchParams } from "react-router-dom";
+import SideBar from "../components/sideBar";
+
 function ProductsPage() {
   const products = useProducts();
   const [displayed, setDisplayed] = useState([]);
-  const [search, setSearch] = useState();
+  const [search, setSearch] = useState("");
   const [query, setQuery] = useState({});
   const [searchParams, setSearchParams] = useSearchParams();
   useEffect(() => {
@@ -31,28 +31,9 @@ function ProductsPage() {
     setDisplayed(finalProducts);
   }, [query]);
 
-  const searchHandler = () => {
-    setQuery((query) => createQueryObject(query, { search }));
-  };
-  const categoryHandler = (event) => {
-    const { tagName } = event.target;
-    const category = event.target.innerText.toLowerCase();
-    if (tagName !== "LI") return;
-    setQuery((query) => createQueryObject(query, { category }));
-  };
   return (
     <>
-      <div>
-        <input
-          type="text"
-          placeholder="Search..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value.toLowerCase().trim())}
-        />
-        <button onClick={searchHandler}>
-          <ImSearch />
-        </button>
-      </div>
+      <SearchBox search={search} setSearch={setSearch} setQuery={setQuery} />
       <div className={styles.container}>
         <div className={styles.products}>
           {!displayed.length && <Loader />}
@@ -60,22 +41,9 @@ function ProductsPage() {
             <Card key={p.id} data={p} />
           ))}
         </div>
-        <div>
-          <div>
-            <FaListUl />
-            <p>Categories</p>
-          </div>
-          <ul onClick={categoryHandler}>
-            <li>All</li>
-            <li>Electronic</li>
-            <li>Jewelery</li>
-            <li>Men's Clothing</li>
-            <li>Womens' Clothing</li>
-          </ul>
-        </div>
+        <SideBar query={query} setQuery={setQuery} />
       </div>
     </>
   );
 }
-
 export default ProductsPage;
